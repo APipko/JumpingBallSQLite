@@ -1,0 +1,96 @@
+@startuml
+
+MainWindow -> Session: start()
+Session -> Worker: getNewState(BallState)
+Worker -> Session: stateReady(BallState)
+Session -> Render: drawFrame(BallState)
+Render -> Session: frameUpdated(QImage)
+Session -> MainWindow: showFrame(QImage)
+MainWindow -> Session: repainted()
+
+@enduml
+
+@startuml
+
+class Session{
+    + Session(QObject *parent = 0)
+    + ~Session()
+    - BallState ballState_
+    - bool isRunning_
+    - std::string stateFile_
+    - void AddWorker()
+    - void AddRender()
+    - void StopThreads()
+
+.. slots ..
+    + void Start()
+    + void Stop()
+    + void QueryNewState()
+    + void UpdateState(BallState state)
+    + void SubmitFrame(QImage frame)
+
+.. signals ..
+    + void StopAll()
+    + void GetNewState(BallState state)
+    + void DrawFrame(BallState state)
+    + void ShowFrame(QImage frame)
+}
+
+class Worker{
+    + Worker(int width, int height)
+    + ~Worker()
+    - int maxWidth_
+    - int maxHeight_
+
+.. slots ..
+    + void CalculateNewState(BallState state)
+    + void Stop()
+
+.. signals ..
+    + void StateReady(BallState state)
+    + void Finished()
+}
+
+class Render{
+    + Render(int width, int height, int radius)
+    + ~Render()
+    - int frameWidth_
+    - int frameHeight_
+    - int ballRadius_
+
+.. slots ..
+    + void UpdateFrame(BallState state)
+    + void Stop()
+
+.. signals ..
+    + void FrameUpdated(QImage frame)
+    + void Finished()
+}
+
+class MainWindow {
+    + MainWindow(QWidget *parent = 0)
+    + ~MainWindow()
+    # void paintEvent(QPaintEvent *event) override
+    - Ui::MainWindow *ui
+    - Session session_
+    - QImage image_
+
+.. slots ..
+    + void RepaintFrame(QImage frame)
+    + void OnStartButtonClicked()
+    + void OnStopButtonClicked()
+
+.. signals ..
+    + void Repainted()
+}
+
+class BallState {
+    + int x
+    + int y
+    + bool forwardDirection
+}
+
+Session  *-> "1" BallState
+MainWindow  *-> "1" Session
+
+@enduml
