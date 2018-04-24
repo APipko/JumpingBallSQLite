@@ -17,10 +17,13 @@ class Session{
     + ~Session()
     - BallState ballState_
     - bool isRunning_
+    - Worker worker_
+    - Render render_
+    - QThread workerThread_
+    - QThread renderThread_
     - std::string stateFile_
-    - void AddWorker()
-    - void AddRender()
-    - void StopThreads()
+    - void loadState()
+    - void saveState()
 
 .. slots ..
     + void Start()
@@ -90,7 +93,18 @@ class BallState {
     + bool forwardDirection
 }
 
+class DbManager {
+    + DbManager(const QString& file)
+    + ~DbManager()
+    + bool isOpen()
+    + bool addBallState(const BallState& state)
+    + bool getLastState(BallState& state)
+    - QSqlDatabase m_db
+}
+
 Session  *-> "1" BallState
+Session  *-> "1" Worker
+Session  *-> "1" Render
 MainWindow  *-> "1" Session
 
 @enduml
