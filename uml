@@ -1,12 +1,20 @@
 @startuml
 
-MainWindow -> Session: start()
-Session -> Worker: getNewState(BallState)
+MainWindow --> Session: start()
+Session --> Session: LoadState()
+Session --> DbManager: ... 
+Session o-> Worker: getNewState(BallState)
 Worker -> Session: stateReady(BallState)
 Session -> Render: drawFrame(BallState)
 Render -> Session: frameUpdated(QImage)
 Session -> MainWindow: showFrame(QImage)
-MainWindow -> Session: repainted()
+MainWindow ->o Session: repainted()
+
+MainWindow --> Session: stop()
+Session --> Session: SaveState()
+Session --> DbManager: ... 
+Session -> Worker: StopAll()
+Session -> Render: StopAll()
 
 @enduml
 
